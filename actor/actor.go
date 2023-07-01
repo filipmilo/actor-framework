@@ -8,12 +8,8 @@ import (
 	"github.com/google/uuid"
 )
 
-type Actor interface {
-	//Mozda ovo da vrati Actora? Pa da ActorSystem sacuva PID njegov u mapu neku recimo
-	//I onda da pozove metodu Live() konkurento -> go , koji potom ceka na neke poruke
-	Birth() uuid.UUID
-	Live()
-	Kill()
+type IActor interface {
+  Recieve(context Context)
 }
 
 type ActorStatus int8
@@ -23,67 +19,42 @@ const (
 	ActorEnd    ActorStatus = 2
 )
 
-type BasicActor struct {
+type Actor struct {
 	Pid    uuid.UUID
 	Name   string
 	Status ActorStatus
+  Behavior *behavior
+  prop *IActor
 }
 
-func (a *BasicActor) Birth() uuid.UUID {
+func (a *Actor) Birth() uuid.UUID {
 	a.Pid = uuid.New()
 	a.Name = fmt.Sprintf("%s%d", "BasicActor", a.Pid)
 
-	fmt.Printf("I, %s am BORN!", a.Name)
-	fmt.Println()
+	fmt.Printf("I, %s am BORN!\n", a.Name)
 
 	go a.Live()
 	return a.Pid
 }
 
-func (a *BasicActor) Live() {
-	//Runs function after current function finishes
+func (a *Actor) Live() {
 	defer a.Kill()
 
 	for a.Status = ActorLiving; a.Status == ActorLiving; {
-		//Some business logic - message recieves
 		time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
+    a.Behavior.run(Context{
+      behavior: a.Behavior,
+    })
 
-		//Ako mu neko posalje recimo poruku da se samoubije ili ako on tako odluci recimo
-		//Ovo ce zavisiti od toga kakve poruke primi
 		if rand.Intn(100) > 90 {
 			a.Status = ActorEnd
 		}
-		fmt.Printf("%s waiting for message", a.Name)
-		fmt.Println()
+
+		fmt.Printf("%s waiting for message\n", a.Name)
 	}
 }
 
-func (a *BasicActor) Kill() {
-	fmt.Printf("I,%s have died... ARGHHHH!", a.Name)
-	fmt.Println()
+func (a *Actor) Kill() {
+	fmt.Printf("I,%s have died... ARGHHHH!\n", a.Name)
 }
 
-type ActorSystem struct {
-	environment map[uuid.UUID]Actor
-}
-
-func (as *ActorSystem) InitSystem() {
-	as.environment = make(map[uuid.UUID]Actor)
-}
-
-func (as *ActorSystem) InitActor() {
-	a := BasicActor{}
-	pid := a.Birth()
-
-	_, ok := as.environment[pid]
-	if ok {
-		a.Status = ActorEnd
-		return
-	}
-
-	as.environment[pid] = &a
-}
-
-func (as *ActorSystem) PrintValues() {
-	fmt.Println(as.environment)
-}
