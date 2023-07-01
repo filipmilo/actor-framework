@@ -1,6 +1,7 @@
 package actor
 
 type Context struct {
+  Name string
   behavior *behavior
 }
 

@@ -7,24 +7,24 @@ import (
 )
 
 type ActorSystem struct {
-	environment map[uuid.UUID]*Actor
+	environment map[uuid.UUID]*actor
 }
 
 func (as *ActorSystem) InitSystem() {
-	as.environment = make(map[uuid.UUID]*Actor)
+	as.environment = make(map[uuid.UUID]*actor)
 }
 
 func (as *ActorSystem) InitActor(prop IActor) {
-  a := Actor {
+  a := actor {
     prop: &prop,
-    Behavior: initBehavior(prop.Recieve),
+    behavior: initBehavior(prop.Recieve),
   }
 
-	pid := a.Birth()
+	pid := a.birth()
 
 	_, ok := as.environment[pid]
 	if ok {
-		a.Status = ActorEnd
+		a.status = ActorEnd
 		return
 	}
 

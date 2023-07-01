@@ -8,6 +8,8 @@ import (
 	"github.com/google/uuid"
 )
 
+
+// Top level interface that is used for constructing valid props
 type IActor interface {
   Recieve(context Context)
 }
@@ -19,42 +21,43 @@ const (
 	ActorEnd    ActorStatus = 2
 )
 
-type Actor struct {
-	Pid    uuid.UUID
-	Name   string
-	Status ActorStatus
-  Behavior *behavior
+type actor struct {
+	pid    uuid.UUID
+	name   string
+	status ActorStatus
+  behavior *behavior
   prop *IActor
 }
 
-func (a *Actor) Birth() uuid.UUID {
-	a.Pid = uuid.New()
-	a.Name = fmt.Sprintf("%s%d", "BasicActor", a.Pid)
+func (a *actor) birth() uuid.UUID {
+	a.pid = uuid.New()
+  a.name = fmt.Sprintf("%s:%s", "BasicActor", a.pid.String())
 
-	fmt.Printf("I, %s am BORN!\n", a.Name)
+	fmt.Printf("I, %s am BORN!\n", a.name)
 
-	go a.Live()
-	return a.Pid
+	go a.live()
+	return a.pid
 }
 
-func (a *Actor) Live() {
-	defer a.Kill()
+func (a *actor) live() {
+	defer a.kill()
 
-	for a.Status = ActorLiving; a.Status == ActorLiving; {
+	for a.status = ActorLiving; a.status == ActorLiving; {
 		time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
-    a.Behavior.run(Context{
-      behavior: a.Behavior,
+    a.behavior.run(Context{
+      Name: a.name,
+      behavior: a.behavior,
     })
 
 		if rand.Intn(100) > 90 {
-			a.Status = ActorEnd
+			a.status = ActorEnd
 		}
 
-		fmt.Printf("%s waiting for message\n", a.Name)
+		fmt.Printf("%s waiting for message\n", a.name)
 	}
 }
 
-func (a *Actor) Kill() {
-	fmt.Printf("I,%s have died... ARGHHHH!\n", a.Name)
+func (a *actor) kill() {
+	fmt.Printf("I,%s have died... ARGHHHH!\n", a.name)
 }
 
