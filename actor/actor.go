@@ -8,10 +8,14 @@ import (
 	"github.com/google/uuid"
 )
 
-
 // Top level interface that is used for constructing valid props
 type IActor interface {
-  Recieve(context Context)
+	Recieve(context Context)
+}
+
+type RemoteActor struct {
+	actor   Actor
+	address string
 }
 
 type ActorStatus int8
@@ -21,17 +25,19 @@ const (
 	ActorEnd    ActorStatus = 2
 )
 
-type actor struct {
-	pid    uuid.UUID
-	name   string
-	status ActorStatus
-  behavior *behavior
-  prop *IActor
+type Actor struct {
+	pid              uuid.UUID
+	name             string
+	status           ActorStatus
+	behavior         *behavior
+	prop             *IActor
+	ListeningAddress string
 }
 
-func (a *actor) birth() uuid.UUID {
+func (a *Actor) birth() uuid.UUID {
 	a.pid = uuid.New()
-  a.name = fmt.Sprintf("%s:%s", "BasicActor", a.pid.String())
+
+	a.name = fmt.Sprintf("%s:%s", "BasicActor", a.pid.String())
 
 	fmt.Printf("I, %s am BORN!\n", a.name)
 
@@ -39,15 +45,15 @@ func (a *actor) birth() uuid.UUID {
 	return a.pid
 }
 
-func (a *actor) live() {
+func (a *Actor) live() {
 	defer a.kill()
 
 	for a.status = ActorLiving; a.status == ActorLiving; {
 		time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
-    a.behavior.run(Context{
-      Name: a.name,
-      behavior: a.behavior,
-    })
+		a.behavior.run(Context{
+			Name:     a.name,
+			behavior: a.behavior,
+		})
 
 		if rand.Intn(100) > 90 {
 			a.status = ActorEnd
@@ -57,7 +63,6 @@ func (a *actor) live() {
 	}
 }
 
-func (a *actor) kill() {
+func (a *Actor) kill() {
 	fmt.Printf("I,%s have died... ARGHHHH!\n", a.name)
 }
-
