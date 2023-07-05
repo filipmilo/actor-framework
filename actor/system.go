@@ -39,24 +39,32 @@ func (as *ActorSystem) PrintValues() {
 	fmt.Println(as.environment)
 }
 
-func (a *ActorSystem) StopActor(ctx context.Context, actorPid uuid.UUID) error {
-	// // add a span context
-	// ctx, span := telemetry.SpanContext(ctx, "StopActor")
-	// defer span.End()
-	if !a.hasStarted {
+func (as *ActorSystem) StopActor(ctx context.Context, actorPid uuid.UUID) error {
+
+	if !as.hasStarted {
 		return errors.New("actor system has not started yet")
 	}
-	// actorPath := NewPath(name, NewAddress(protocol, a.name, "", -1))
-	// if a.remotingEnabled {
-	// 	// get the path of the given actor
-	// 	actorPath = NewPath(name, NewAddress(protocol, a.name, a.remotingHost, int(a.remotingPort)))
-	// }
-	// check whether the given actor already exist in the system or not
-	retrivetActor, exist := a.environment[actorPid]
+	retrivetActor, exist := as.environment[actorPid]
 	// actor is found.
 	if exist {
 		// stop the given actor
 		retrivetActor.kill()
+		return fmt.Errorf("actor=%s should be stopped", retrivetActor.pid)
+	}
+	return fmt.Errorf("actor=%s not found in the system", retrivetActor.pid)
+}
+
+func (as *ActorSystem) RestartActor(ctx context.Context, actorPid uuid.UUID) error {
+
+	if !as.hasStarted {
+		return errors.New("actor system has not started yet")
+	}
+	retrivetActor, exist := as.environment[actorPid]
+	// actor is found.
+	if exist {
+		// stop the given actor
+		retrivetActor.kill()
+		retrivetActor.birth()
 		return fmt.Errorf("actor=%s should be stopped", retrivetActor.pid)
 	}
 	return fmt.Errorf("actor=%s not found in the system", retrivetActor.pid)

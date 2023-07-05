@@ -60,5 +60,5 @@ func (a *actor) kill() {
 
 	a.status = ActorEnd
 
-	fmt.Printf("I,%s have died... ARGHHHH!\n", a.name)
+	fmt.Printf("I, %s have died... ARGHHHH!\n", a.name)
 }
