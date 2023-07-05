@@ -8,10 +8,9 @@ import (
 	"github.com/google/uuid"
 )
 
-
 // Top level interface that is used for constructing valid props
 type IActor interface {
-  Recieve(context Context)
+	Recieve(context Context)
 }
 
 type ActorStatus int8
@@ -22,16 +21,16 @@ const (
 )
 
 type actor struct {
-	pid    uuid.UUID
-	name   string
-	status ActorStatus
-  behavior *behavior
-  prop *IActor
+	pid      uuid.UUID
+	name     string
+	status   ActorStatus
+	behavior *behavior
+	prop     *IActor
 }
 
 func (a *actor) birth() uuid.UUID {
 	a.pid = uuid.New()
-  a.name = fmt.Sprintf("%s:%s", "BasicActor", a.pid.String())
+	a.name = fmt.Sprintf("%s:%s", "BasicActor", a.pid.String())
 
 	fmt.Printf("I, %s am BORN!\n", a.name)
 
@@ -44,10 +43,10 @@ func (a *actor) live() {
 
 	for a.status = ActorLiving; a.status == ActorLiving; {
 		time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
-    a.behavior.run(Context{
-      Name: a.name,
-      behavior: a.behavior,
-    })
+		a.behavior.run(Context{
+			Name:     a.name,
+			behavior: a.behavior,
+		})
 
 		if rand.Intn(100) > 90 {
 			a.status = ActorEnd
@@ -58,6 +57,8 @@ func (a *actor) live() {
 }
 
 func (a *actor) kill() {
+
+	a.status = ActorEnd
+
 	fmt.Printf("I,%s have died... ARGHHHH!\n", a.name)
 }
-
