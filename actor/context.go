@@ -1,20 +1,22 @@
 package actor
 
+import "github.com/google/uuid"
+
 type Context struct {
-	Pid      Pid
+	Pid      *uuid.UUID
 	Name     string
 	behavior *behavior
-	Message  IMessage
+	Envelope Envelope
 }
 
 func (context *Context) Become(newBehavior func(context Context)) {
 	context.behavior.run = newBehavior
 }
 
-func (context *Context) Send(reciverPid *Pid, message IMessage) {
-	reciverPid.channel <- message
+// To be implemented
+func (context *Context) Send(pid uuid.UUID, message Envelope) {
 }
 
-func (context *Context) GetPid() Pid {
+func (context *Context) GetPid() *uuid.UUID {
 	return context.Pid
 }

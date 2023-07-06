@@ -20,8 +20,8 @@ const (
 
 type actor struct {
 	pid      uuid.UUID
-	parentCh chan IMessage
-	channel  chan IMessage
+	parentCh chan Envelope
+	channel  chan Envelope
 	name     string
 	status   ActorStatus
 	behavior *behavior
@@ -31,7 +31,7 @@ type actor struct {
 func (a *actor) birth() uuid.UUID {
 	a.pid = uuid.New()
 	a.name = fmt.Sprintf("%s:%s", "BasicActor", a.pid.String())
-	a.channel = make(chan IMessage, 100)
+	a.channel = make(chan Envelope, 100)
 
 	fmt.Printf("I, %s am BORN!\n", a.name)
 
@@ -43,27 +43,20 @@ func (a *actor) live() {
 	defer a.kill()
 
 	for a.status = ActorLiving; a.status == ActorLiving; {
-		// fmt.Printf("ENTERED FOR, actor %s \n", a.name)
 
 		select {
 		case msg := <-a.channel:
-			// fmt.Println("Got Message!")
-			// fmt.Println(msg)
-
-			// time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
 
 			a.behavior.run(Context{
-				Pid:      Pid{Value: a.pid, channel: a.channel},
+				Pid:      &a.pid,
 				Name:     a.name,
 				behavior: a.behavior,
-				Message:  msg,
+				Envelope: msg,
 			})
 		default:
-			// fmt.Println("No Message! Do Usual Stuff")
-			// time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
 
 			a.behavior.run(Context{
-				Pid:      Pid{Value: a.pid, channel: a.channel},
+				Pid:      &a.pid,
 				Name:     a.name,
 				behavior: a.behavior,
 			})

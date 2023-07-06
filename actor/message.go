@@ -1,31 +1,34 @@
 package actor
 
+import "github.com/google/uuid"
+
 // Messages should be IMMUTABLE!
 // Setters should not be defined, create messages only through constructor
-type IMessage interface {
-	GetReciver() *Pid
-	GetValue() IValue
-}
+
+// Ovaj interface je mozda i nepotreban? Pa sam za sve stavio strukturu Envelope
+// type IEnvelope interface {
+// 	GetReciver() *uuid.UUID
+// 	GetSender() *uuid.UUID
+// 	GetMessage() IMessage
+// }
 
 // CAN BE OF ANY TYPE! Stavio sam ovo da bude jasno da je neki Value
-type IValue interface{}
+type IMessage interface{}
 
-// type MessageType int8
+type Envelope struct {
+	reciver *uuid.UUID
+	sender  *uuid.UUID
+	message IMessage
+}
 
-// const (
-// 	Notification MessageType = 1
-// 	Request      MessageType = 2
-// )
+func (e *Envelope) GetMessage() IMessage {
+	return e.message
+}
 
-// type Message struct {
-// 	Reciver *Pid
-// 	Value   IValue
-// }
+func (e *Envelope) GetReciver() *uuid.UUID {
+	return e.reciver
+}
 
-// func (m *Message) GetValue() IValue {
-// 	return m.Value
-// }
-
-// func (m *Message) GetReciver() *Pid {
-// 	return m.Reciver
-// }
+func (e *Envelope) GetSender() *uuid.UUID {
+	return e.sender
+}
