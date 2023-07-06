@@ -1,7 +1,6 @@
 package actor
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
@@ -12,16 +11,22 @@ type ActorSystem struct {
 	environment map[uuid.UUID]*actor
 
 	hasStarted bool
+
+	channel chan string
 }
 
 func (as *ActorSystem) InitSystem() {
 	as.environment = make(map[uuid.UUID]*actor)
+
+	as.channel = make(chan string, 100)
 }
 
 func (as *ActorSystem) InitActor(prop IActor) {
+
 	a := actor{
-		prop:     &prop,
-		behavior: initBehavior(prop.Recieve),
+		prop:          &prop,
+		behavior:      initBehavior(prop.Recieve),
+		systemChannel: as.channel,
 	}
 
 	pid := a.birth()
@@ -39,33 +44,43 @@ func (as *ActorSystem) PrintValues() {
 	fmt.Println(as.environment)
 }
 
-func (as *ActorSystem) StopActor(ctx context.Context, actorPid uuid.UUID) error {
+func recieveActorStatus(c chan string, actorPid uuid.UUID) {
+	status := <-c
+	fmt.Println(status)
+
+	if status == "ActorEnd" {
+		as := &ActorSystem{} // Create an instance of the ActorSystem struct
+		err := as.StopActor(actorPid)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+func (as *ActorSystem) StopActor(actorPid uuid.UUID) error {
 
 	if !as.hasStarted {
 		return errors.New("actor system has not started yet")
 	}
 	retrivetActor, exist := as.environment[actorPid]
-	// actor is found.
 	if exist {
-		// stop the given actor
-		retrivetActor.kill()
-		return fmt.Errorf("actor=%s should be stopped", retrivetActor.pid)
+
+		delete(as.environment, actorPid)
+		return fmt.Errorf("actor=%s is stopped", retrivetActor.pid)
 	}
 	return fmt.Errorf("actor=%s not found in the system", retrivetActor.pid)
 }
 
-func (as *ActorSystem) RestartActor(ctx context.Context, actorPid uuid.UUID) error {
+// func (as *ActorSystem) RestartActor(ctx context.Context, actorPid uuid.UUID) error {
 
-	if !as.hasStarted {
-		return errors.New("actor system has not started yet")
-	}
-	retrivetActor, exist := as.environment[actorPid]
-	// actor is found.
-	if exist {
-		// stop the given actor
-		retrivetActor.kill()
-		retrivetActor.birth()
-		return fmt.Errorf("actor=%s should be stopped", retrivetActor.pid)
-	}
-	return fmt.Errorf("actor=%s not found in the system", retrivetActor.pid)
-}
+// 	if !as.hasStarted {
+// 		return errors.New("actor system has not started yet")
+// 	}
+// 	retrivetActor, exist := as.environment[actorPid]
+// 	// actor is found.
+// 	if exist {
+
+// 		return fmt.Errorf("actor=%s should be stopped", retrivetActor.pid)
+// 	}
+// 	return fmt.Errorf("actor=%s not found in the system", retrivetActor.pid)
+// }

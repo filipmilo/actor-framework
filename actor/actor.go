@@ -20,12 +20,24 @@ const (
 	ActorEnd    ActorStatus = 2
 )
 
+func (e ActorStatus) String() string {
+	switch e {
+	case ActorLiving:
+		return "ActorLiving"
+	case ActorEnd:
+		return "ActorEnd"
+	default:
+		return fmt.Sprintf("%d", int(e))
+	}
+}
+
 type actor struct {
-	pid      uuid.UUID
-	name     string
-	status   ActorStatus
-	behavior *behavior
-	prop     *IActor
+	pid           uuid.UUID
+	name          string
+	status        ActorStatus
+	behavior      *behavior
+	prop          *IActor
+	systemChannel chan string
 }
 
 func (a *actor) birth() uuid.UUID {
@@ -58,7 +70,11 @@ func (a *actor) live() {
 
 func (a *actor) kill() {
 
-	a.status = ActorEnd
+	// a.status = ActorEnd
+
+	go recieveActorStatus(a.systemChannel, a.pid)
+
+	a.systemChannel <- a.status.String()
 
 	fmt.Printf("I, %s have died... ARGHHHH!\n", a.name)
 }
