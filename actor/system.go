@@ -8,40 +8,31 @@ import (
 )
 
 type ActorSystem struct {
-	environment map[uuid.UUID]*actor
+	environment map[uuid.UUID]chan Envelope
 
-	hasStarted bool
-
-	channel chan string
+	Root *RootActor
 }
 
-func (as *ActorSystem) InitSystem() {
-	as.environment = make(map[uuid.UUID]*actor)
 
-	as.channel = make(chan string, 100)
+func NewSystem() *ActorSystem {
+  as := ActorSystem{}
+	as.environment = make(map[uuid.UUID]chan Envelope)
+  as.Root = newRootActor(&as)
+
+  return &as
 }
 
-func (as *ActorSystem) InitActor(prop IActor) {
 
-	a := actor{
-		prop:          &prop,
-		behavior:      initBehavior(prop.Recieve),
-		systemChannel: as.channel,
-	}
+func (as *ActorSystem) RegiserActor(newActor *CreateActorMessage) {
+  as.environment[newActor.pid] = newActor.channel
+}
 
-	pid := a.birth()
-
-	_, ok := as.environment[pid]
-	if ok {
-		a.status = ActorEnd
-		return
-	}
-
-	as.environment[pid] = &a
+func (as *ActorSystem) ForwardMessage(message Envelope) {
+  as.environment[message.reciver] <- message
 }
 
 func (as *ActorSystem) PrintValues() {
-	fmt.Println(as.environment)
+  fmt.Printf("Environment: %v\n", as.environment)
 }
 
 func recieveActorStatus(c chan string, actorPid uuid.UUID) {
@@ -57,18 +48,19 @@ func recieveActorStatus(c chan string, actorPid uuid.UUID) {
 	}
 }
 
+
 func (as *ActorSystem) StopActor(actorPid uuid.UUID) error {
 
-	if !as.hasStarted {
-		return errors.New("actor system has not started yet")
-	}
-	retrivetActor, exist := as.environment[actorPid]
+	// if !as.hasStarted {
+	// 	return errors.New("actor system has not started yet")
+	// }
+	_, exist := as.environment[actorPid]
 	if exist {
 
 		delete(as.environment, actorPid)
-		return fmt.Errorf("actor=%s is stopped", retrivetActor.pid)
+		return fmt.Errorf("actor=%s is stopped", actorPid)
 	}
-	return fmt.Errorf("actor=%s not found in the system", retrivetActor.pid)
+	return fmt.Errorf("actor=%s not found in the system", actorPid)
 }
 
 // func (as *ActorSystem) RestartActor(ctx context.Context, actorPid uuid.UUID) error {
@@ -84,3 +76,4 @@ func (as *ActorSystem) StopActor(actorPid uuid.UUID) error {
 // 	}
 // 	return fmt.Errorf("actor=%s not found in the system", retrivetActor.pid)
 // }
+}

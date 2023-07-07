@@ -2,22 +2,21 @@ package actor
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
 
 	"github.com/google/uuid"
 )
 
 // Top level interface that is used for constructing valid props
 type IActor interface {
-	Recieve(context Context)
+	Recieve(context *ActorContext)
 }
 
 type ActorStatus int8
 
 const (
-	ActorLiving ActorStatus = 1
-	ActorEnd    ActorStatus = 2
+  ActorStarting = iota
+	ActorLiving
+  ActorEnd
 )
 
 func (e ActorStatus) String() string {
@@ -32,49 +31,62 @@ func (e ActorStatus) String() string {
 }
 
 type actor struct {
-	pid           uuid.UUID
-	name          string
-	status        ActorStatus
-	behavior      *behavior
-	prop          *IActor
-	systemChannel chan string
+  system *ActorSystem
+	pid      uuid.UUID
+	channel  chan Envelope
+	name     string
+	status   ActorStatus
+	behavior *behavior
+	prop     *IActor
 }
 
 func (a *actor) birth() uuid.UUID {
 	a.pid = uuid.New()
-	a.name = fmt.Sprintf("%s:%s", "BasicActor", a.pid.String())
+  go a.setup()
+	return a.pid
+}
+
+func (a *actor) setup() {
+	a.channel = make(chan Envelope, 100)
 
 	fmt.Printf("I, %s am BORN!\n", a.name)
 
-	go a.live()
-	return a.pid
+  a.onCreateSignal()
+	a.live()
+}
+
+func (a *actor) onCreateSignal() {
+  a.system.Root.in <- Envelope{
+    reciver: a.system.Root.pid,
+    sender: &a.pid,
+    message: &CreateActorMessage{
+      pid: a.pid,
+      channel: a.channel,
+    },
+  }
+}
+
+func (a *actor) createContext(msg *Envelope) *ActorContext {
+  return &ActorContext{
+    system: a.system,
+    behavior: a.behavior,
+    Pid:      a.pid,
+    Name:     a.name,
+    Message: msg,
+  }
 }
 
 func (a *actor) live() {
 	defer a.kill()
+  a.status = ActorLiving
 
-	for a.status = ActorLiving; a.status == ActorLiving; {
-		time.Sleep(time.Duration(rand.Intn(5000)) * time.Millisecond)
-		a.behavior.run(Context{
-			Name:     a.name,
-			behavior: a.behavior,
-		})
-
-		if rand.Intn(100) > 90 {
-			a.status = ActorEnd
-		}
-
-		fmt.Printf("%s waiting for message\n", a.name)
+	for a.status == ActorLiving {
+    msg := <-a.channel
+		a.behavior.run(a.createContext(&msg))
 	}
+
 }
 
 func (a *actor) kill() {
-
-	// a.status = ActorEnd
-
-	go recieveActorStatus(a.systemChannel, a.pid)
-
-	a.systemChannel <- a.status.String()
-
-	fmt.Printf("I, %s have died... ARGHHHH!\n", a.name)
+	fmt.Printf("I,%s have died... ARGHHHH!\n", a.name)
 }
