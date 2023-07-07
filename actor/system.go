@@ -7,30 +7,29 @@ import (
 )
 
 type ActorSystem struct {
-	environment map[uuid.UUID]*actor
+	environment map[uuid.UUID]chan Envelope
+
+	Root *RootActor
 }
 
-func (as *ActorSystem) InitSystem() {
-	as.environment = make(map[uuid.UUID]*actor)
+
+func NewSystem() *ActorSystem {
+  as := ActorSystem{}
+	as.environment = make(map[uuid.UUID]chan Envelope)
+  as.Root = newRootActor(&as)
+
+  return &as
 }
 
-func (as *ActorSystem) InitActor(prop IActor) {
-  a := actor {
-    prop: &prop,
-    behavior: initBehavior(prop.Recieve),
-  }
 
-	pid := a.birth()
+func (as *ActorSystem) RegiserActor(newActor *CreateActorMessage) {
+  as.environment[newActor.pid] = newActor.channel
+}
 
-	_, ok := as.environment[pid]
-	if ok {
-		a.status = ActorEnd
-		return
-	}
-
-	as.environment[pid] = &a
+func (as *ActorSystem) ForwardMessage(message Envelope) {
+  as.environment[message.reciver] <- message
 }
 
 func (as *ActorSystem) PrintValues() {
-	fmt.Println(as.environment)
+  fmt.Printf("Environment: %v\n", as.environment)
 }

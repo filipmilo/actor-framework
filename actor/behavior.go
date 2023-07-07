@@ -1,10 +1,10 @@
 package actor
 
 type behavior struct {
-  run func(context Context)
+  run func(context *ActorContext)
 }
 
-func initBehavior(handler func(context Context)) *behavior {
+func initBehavior(handler func(context *ActorContext)) *behavior {
   return &behavior{
     run: handler,
   }
