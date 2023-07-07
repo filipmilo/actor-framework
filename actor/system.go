@@ -26,8 +26,7 @@ func (as *ActorSystem) RegiserActor(newActor *CreateActorMessage) {
   as.environment[newActor.pid] = newActor.channel
 }
 
-func (as *ActorSystem) ForwardMessage(message Envelope, actor string) {
-  fmt.Println(actor)
+func (as *ActorSystem) ForwardMessage(message Envelope) {
   as.environment[message.reciver] <- message
 }
 

@@ -59,5 +59,5 @@ func (as *RootActor) Send(reciever uuid.UUID, message IMessage) {
     message: message,
   }
 
-  as.system.ForwardMessage(envelope, "ROOT")
+  as.system.ForwardMessage(envelope)
 }

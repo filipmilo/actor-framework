@@ -57,6 +57,7 @@ func (a *actor) onCreateSignal() {
 
 func (a *actor) createContext(msg *Envelope) *ActorContext {
   return &ActorContext{
+    system: a.system,
     behavior: a.behavior,
     Pid:      a.pid,
     Name:     a.name,

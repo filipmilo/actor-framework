@@ -39,10 +39,10 @@ func (t *Sender) Recieve(context *actor.ActorContext) {
 
 func (t *Sender) Subtract(context *actor.ActorContext) {
   switch msg := context.Message.Message().(type) {
-  case int32:
+  case SenderMessage:
     context.Send(t.adderPid, AdderMessage{
       add: false,
-      amount: msg,
+      amount: msg.amount,
     })
 
     context.Become(t.Recieve)
@@ -63,7 +63,7 @@ func (a *Adder) Recieve(context *actor.ActorContext) {
     } else {
       a.sum -= msg.amount
     }
-    fmt.Printf("Current sum is: %d", a.sum)
+    fmt.Printf("Current sum is: %d\n", a.sum)
   default:
     fmt.Printf("Ivalid message type")
   }
@@ -84,6 +84,7 @@ func main() {
     adderPid: *adder,
   }, "Sender")
 
+  //If they are not initialized by this point it will throw or wont work
 	time.Sleep(3 * time.Second)
 
   context.Send(*sender, SenderMessage{amount: 6})

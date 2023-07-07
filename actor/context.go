@@ -24,7 +24,7 @@ func (context *ActorContext) Send(reciever uuid.UUID, message IMessage) {
     message: message,
   }
 
-  context.system.ForwardMessage(envelope, "BASIC")
+  context.system.ForwardMessage(envelope)
 }
 
 
