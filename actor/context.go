@@ -1,22 +1,30 @@
 package actor
 
-import "github.com/google/uuid"
+import (
 
-type Context struct {
-	Pid      *uuid.UUID
-	Name     string
+	"github.com/google/uuid"
+)
+
+type ActorContext struct {
+  system *ActorSystem
 	behavior *behavior
-	Envelope Envelope
+	Pid      uuid.UUID
+	Name     string
+  Message *Envelope
 }
 
-func (context *Context) Become(newBehavior func(context Context)) {
+func (context *ActorContext) Become(newBehavior func(context *ActorContext)) {
 	context.behavior.run = newBehavior
 }
 
-// To be implemented
-func (context *Context) Send(pid uuid.UUID, message Envelope) {
+func (context *ActorContext) Send(reciever uuid.UUID, message IMessage) {
+  envelope := Envelope{
+    reciver: reciever,
+    sender: &context.Pid,
+    message: message,
+  }
+
+  context.system.ForwardMessage(envelope, "BASIC")
 }
 
-func (context *Context) GetPid() *uuid.UUID {
-	return context.Pid
-}
+
