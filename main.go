@@ -65,7 +65,7 @@ func (a *Adder) Recieve(context *actor.ActorContext) {
     }
     fmt.Printf("Current sum is: %d\n", a.sum)
   default:
-    fmt.Printf("Ivalid message type")
+    fmt.Printf("Invalid message type")
   }
 }
 
@@ -98,4 +98,6 @@ func main() {
 
 	system.PrintValues()
 	time.Sleep(60 * time.Second)
+	system.PrintValues()
+
 }

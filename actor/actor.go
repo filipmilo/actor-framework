@@ -2,6 +2,8 @@ package actor
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -51,7 +53,7 @@ func (a *actor) setup() {
 
 	fmt.Printf("I, %s am BORN!\n", a.name)
 
-  a.onCreateSignal()
+  	a.onCreateSignal()
 	a.live()
 }
 
@@ -60,6 +62,17 @@ func (a *actor) onCreateSignal() {
     reciver: a.system.Root.pid,
     sender: &a.pid,
     message: &CreateActorMessage{
+      pid: a.pid,
+      channel: a.channel,
+    },
+  }
+}
+
+func (a *actor) onDeleteSignal() {
+  a.system.Root.in <- Envelope{
+    reciver: a.system.Root.pid,
+    sender: &a.pid,
+    message: &DeleteActorMessage{
       pid: a.pid,
       channel: a.channel,
     },
@@ -78,15 +91,30 @@ func (a *actor) createContext(msg *Envelope) *ActorContext {
 
 func (a *actor) live() {
 	defer a.kill()
-  a.status = ActorLiving
+  	a.status = ActorLiving
 
 	for a.status == ActorLiving {
-    msg := <-a.channel
-		a.behavior.run(a.createContext(&msg))
+	select{
+		
+		case msg := <-a.channel :
+			fmt.Printf("\nI, %v am alive\n", a.name)
+			a.behavior.run(a.createContext(&msg))
+			
+		default:
+			time.Sleep(5 * time.Second)
+
+			if(rand.Intn(100) > 90){
+				a.status = ActorEnd
+			}
+			
+		}
 	}
 
 }
 
 func (a *actor) kill() {
+
+	a.onDeleteSignal()
+
 	fmt.Printf("I,%s have died... ARGHHHH!\n", a.name)
 }
