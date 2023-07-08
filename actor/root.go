@@ -31,16 +31,6 @@ func newRootActor(system *ActorSystem) *RootActor{
   return root
 }
 
-// func rootActorStopActor(system *ActorSystem) {
-//   root := &RootActor{
-//     pid: system.Root.pid,
-//     system: system,
-//     in: system.environment[system.Root.pid],
-//   }
-
-//   go root.events()
-// }
-
 func (as *RootActor) events() {
 	for {
     msg := <-as.in
