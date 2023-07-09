@@ -1,6 +1,8 @@
 package actor
 
 import (
+	"main/proto"
+
 	"github.com/google/uuid"
 )
 

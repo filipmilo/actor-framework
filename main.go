@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"main/actor"
+	messages "main/messages/proto"
+	"main/remote"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,6 +22,13 @@ type AdderMessage struct {
 
 type SenderMessage struct {
 	amount int32
+<<<<<<< HEAD
+=======
+}
+
+type RemoteMessage struct {
+	message string
+>>>>>>> c812ca6 (Implemented remote sending messages)
 }
 
 func (t *Sender) Recieve(context *actor.ActorContext) {
@@ -52,6 +61,18 @@ func (t *Sender) Subtract(context *actor.ActorContext) {
 
 type Adder struct {
 	sum int32
+}
+
+type RemoteActor struct {
+}
+
+func (r *RemoteActor) Recieve(context *actor.ActorContext) {
+	switch msg := context.Message.Message().(type) {
+	case *messages.Ping:
+		fmt.Printf("Remote message recieved: %v\n", msg.Message)
+	default:
+		fmt.Printf("Invalid message type")
+	}
 }
 
 func (a *Adder) Recieve(context *actor.ActorContext) {

@@ -1,0 +1,27 @@
+syntax = "proto3";
+import "google/protobuf/any.proto";
+package proto;
+option go_package = "actor-framework/proto";
+
+
+service Remote{
+    rpc GetRemotingActor(RemotingActorRequest) returns (RemotingActorResponse);
+    rpc SendMessage(ProtoEnvelope) returns (MessageResponse);
+}
+
+message ProtoEnvelope{
+    string target = 1;
+    google.protobuf.Any message = 3;
+}
+
+message MessageResponse{
+    string message = 1;
+}
+
+message RemotingActorRequest{
+    string name = 1;
+}
+
+message RemotingActorResponse{
+    string pid = 1;
+}
