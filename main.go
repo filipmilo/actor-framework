@@ -98,7 +98,14 @@ type ComplexValue struct {
 func main() {
 	system := actor.NewSystem()
 	context := system.Root
-
+	system2 := actor.NewSystem()
+	context2 := system2.Root
+	remote1 := remote.NewRemote(system, remote.NewConfig("127.0.0.1:8000"))
+	remote1.Start()
+	remote2 := remote.NewRemote(system2, remote.NewConfig("127.0.0.1:4200"))
+	remote2.Start()
+	system.WithRemoting("127.0.0.1:8000")
+	system2.WithRemoting("127.0.0.1:4200")
 	adder := context.InitActor(&Adder{}, "Adder")
 	sender := context.InitActor(&Sender{
 		adderPid: *adder,

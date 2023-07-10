@@ -34,7 +34,7 @@ func Decode(protoEnvelope *ProtoEnvelope) interface{} {
 	pm := n.New().Interface()
 	err := proto.Unmarshal(protoEnvelope.Message.Value, pm)
 	if err != nil {
-		log.Fatal("Error while deserializing Ping message:", err)
+		log.Fatal("Error while deserializing message:", err)
 	}
 
 	return pm

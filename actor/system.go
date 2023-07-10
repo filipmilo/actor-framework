@@ -7,30 +7,47 @@ import (
 )
 
 type ActorSystem struct {
-	environment map[uuid.UUID]chan Envelope
-	names       map[string]uuid.UUID
+	environment map[uuid.UUID]Props
 	Root        *RootActor
+	Remoter     *Remoter
+}
+
+type Props struct {
+	name    string
+	channel chan Envelope
+}
+
+type Remoter struct {
+	address string
 }
 
 func NewSystem() *ActorSystem {
 	as := ActorSystem{}
-	as.environment = make(map[uuid.UUID]chan Envelope)
+	as.environment = make(map[uuid.UUID]Props)
 	as.Root = newRootActor(&as)
 
 	return &as
 }
 
+func (as *ActorSystem) WithRemoting(address string) {
+	as.Remoter = &Remoter{address: address}
+}
+
 func (as *ActorSystem) RegiserActor(newActor *CreateActorMessage) {
-	as.environment[newActor.pid] = newActor.channel
-	as.names[newActor.name] = newActor.pid
+	as.environment[newActor.pid] = Props{name: newActor.name, channel: newActor.channel}
 }
 
 func (as *ActorSystem) ForwardMessage(message Envelope) {
-	as.environment[message.reciver] <- message
+	as.environment[message.reciver].channel <- message
 }
 
 func (as *ActorSystem) ActorPidByName(name string) uuid.UUID {
-	return as.names[name]
+	for uuid, props := range as.environment {
+		if props.name == name {
+			return uuid
+		}
+	}
+	return uuid.Nil
 }
 
 func (as *ActorSystem) PrintValues() {
