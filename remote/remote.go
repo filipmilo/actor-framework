@@ -6,6 +6,7 @@ import (
 	"main/actor"
 	"main/proto"
 	"net"
+	"strings"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
@@ -43,7 +44,7 @@ func (r *Remote) Start() {
 		fmt.Println("Error starting server", err)
 	}
 
-	fmt.Println("Actor is listening on",
+	fmt.Println("Remote server is starting on: ",
 		ln.Addr(),
 	)
 	r.grpcServer = grpc.NewServer(r.config.ServerOptions...)
@@ -51,12 +52,17 @@ func (r *Remote) Start() {
 	go r.grpcServer.Serve(ln)
 }
 
-func (r *Remote) SpawnPid(name, address string) uuid.UUID {
-	response, _ := GetRemoteGrpcClient(address).GetRemotingActor(context.Background(), &proto.RemotingActorRequest{
+func (r *Remote) SpawnPid(name, address string) (uuid.UUID, error) {
+	response, err := GetRemoteGrpcClient(address).GetRemotingActor(context.Background(), &proto.RemotingActorRequest{
 		Name: name,
 	})
 
-	return uuid.MustParse(response.Pid)
+	if err != nil {
+		fmt.Print(strings.Split(err.Error(), "=")[2])
+		return uuid.Nil, err
+	}
+
+	return uuid.MustParse(response.Pid), nil
 }
 
 func GetRemoteGrpcClient(address string) proto.RemoteClient {

@@ -12,9 +12,8 @@ type ActorSystem struct {
 }
 
 type Props struct {
-	name     string
-	channel  chan Envelope
-	isRemote bool
+	name    string
+	channel chan Envelope
 }
 
 func NewSystem() *ActorSystem {

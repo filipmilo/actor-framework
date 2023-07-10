@@ -60,18 +60,6 @@ type Adder struct {
 	sum int32
 }
 
-type RemoteActor struct {
-}
-
-func (r *RemoteActor) Recieve(context *actor.ActorContext) {
-	switch msg := context.Message.Message().(type) {
-	case *messages.Ping:
-		fmt.Printf("Remote message recieved: %v\n", msg.Message)
-	default:
-		fmt.Printf("Invalid message type")
-	}
-}
-
 func (a *Adder) Recieve(context *actor.ActorContext) {
 	switch msg := context.Message.Message().(type) {
 	case AdderMessage:
@@ -95,14 +83,14 @@ type ComplexValue struct {
 func main() {
 	system := actor.NewSystem()
 	context := system.Root
-	remote1 := remote.NewRemote(system, remote.NewConfig("192.168.1.125:8000"))
+	remote1 := remote.NewRemote(system, remote.NewConfig("127.0.0.1:8000"))
 	remote1.Start()
 	adder := context.InitActor(&Adder{}, "Adder")
 	sender := context.InitActor(&Sender{
 		adderPid: *adder,
 	}, "Sender")
-	context.InitActor(&RemoteActor{}, "RemoteActor")
-
+	myActorPid, _ := remote1.SpawnPid("MyActor", "127.0.0.1:4200")
+	context.SendRemote("127.0.0.1:4200", myActorPid, &messages.Ping{Message: "Hello from remote system"})
 	//If they are not initialized by this point it will throw or wont work
 
 	context.Send(*sender, SenderMessage{amount: 6})
