@@ -9,16 +9,12 @@ import (
 type ActorSystem struct {
 	environment map[uuid.UUID]Props
 	Root        *RootActor
-	Remoter     *Remoter
 }
 
 type Props struct {
-	name    string
-	channel chan Envelope
-}
-
-type Remoter struct {
-	address string
+	name     string
+	channel  chan Envelope
+	isRemote bool
 }
 
 func NewSystem() *ActorSystem {
@@ -27,10 +23,6 @@ func NewSystem() *ActorSystem {
 	as.Root = newRootActor(&as)
 
 	return &as
-}
-
-func (as *ActorSystem) WithRemoting(address string) {
-	as.Remoter = &Remoter{address: address}
 }
 
 func (as *ActorSystem) RegiserActor(newActor *CreateActorMessage) {

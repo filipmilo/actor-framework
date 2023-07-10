@@ -19,6 +19,11 @@ func NewRemoteReader(remote *Remote) *RemoteReader {
 }
 
 func (r *RemoteReader) GetRemotingActor(ctx context.Context, request *proto.RemotingActorRequest) (*proto.RemotingActorResponse, error) {
+	/*pid := r.remote.system.ActorPidByName(request.Name)
+	if pid == uuid.Nil {
+		pid = *r.remote.system.Root.InitActor(,request.Name)
+	}*/
+
 	return &proto.RemotingActorResponse{
 		Pid: r.remote.system.ActorPidByName(request.Name).String(),
 	}, nil

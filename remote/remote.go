@@ -51,7 +51,7 @@ func (r *Remote) Start() {
 	go r.grpcServer.Serve(ln)
 }
 
-func (r *Remote) SpawnRemotingActor(name, address string) uuid.UUID {
+func (r *Remote) SpawnPid(name, address string) uuid.UUID {
 	response, _ := GetRemoteGrpcClient(address).GetRemotingActor(context.Background(), &proto.RemotingActorRequest{
 		Name: name,
 	})
