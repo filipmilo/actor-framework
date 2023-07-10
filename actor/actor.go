@@ -36,11 +36,6 @@ func (a *actor) birth() uuid.UUID {
 	return a.pid
 }
 
-func (a *actor) birthRemote(pid uuid.UUID) {
-	a.pid = pid
-	go a.setup()
-}
-
 func (a *actor) setup() {
 	a.channel = make(chan Envelope, 100)
 
