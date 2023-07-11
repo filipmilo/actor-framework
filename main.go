@@ -9,46 +9,45 @@ import (
 	"github.com/google/uuid"
 )
 
-type Sender struct{
-  adderPid uuid.UUID
+type Sender struct {
+	adderPid uuid.UUID
 }
 
 type AdderMessage struct {
-  add bool
-  amount int32
+	add    bool
+	amount int32
 }
 
 type SenderMessage struct {
-  amount int32
+	amount int32
 }
 
 func (t *Sender) Recieve(context *actor.ActorContext) {
-  switch msg := context.Message.Message().(type) {
-  case SenderMessage:
-    context.Send(t.adderPid, AdderMessage{
-      add: true,
-      amount: msg.amount,
-    })
+	switch msg := context.Message.Message().(type) {
+	case SenderMessage:
+		context.Send(t.adderPid, AdderMessage{
+			add:    true,
+			amount: msg.amount,
+		})
 
-    context.Become(t.Subtract)
-  default:
-    log.Printf("Ivalid message type")
-  }
+		context.Become(t.Subtract)
+	default:
+		log.Printf("Ivalid message type")
+	}
 }
 
-
 func (t *Sender) Subtract(context *actor.ActorContext) {
-  switch msg := context.Message.Message().(type) {
-  case SenderMessage:
-    context.Send(t.adderPid, AdderMessage{
-      add: false,
-      amount: msg.amount,
-    })
+	switch msg := context.Message.Message().(type) {
+	case SenderMessage:
+		context.Send(t.adderPid, AdderMessage{
+			add:    false,
+			amount: msg.amount,
+		})
 
-    context.Become(t.Recieve)
-  default:
-    log.Printf("Ivalid message type")
-  }
+		context.Become(t.Recieve)
+	default:
+		log.Printf("Ivalid message type")
+	}
 }
 
 type Adder struct {
@@ -56,17 +55,17 @@ type Adder struct {
 }
 
 func (a *Adder) Recieve(context *actor.ActorContext) {
-  switch msg := context.Message.Message().(type) {
-  case AdderMessage:
-    if msg.add {
-      a.sum += msg.amount
-    } else {
-      a.sum -= msg.amount
-    }
-    fmt.Printf("Current sum is: %d\n", a.sum)
-  default:
-    fmt.Printf("Invalid message type")
-  }
+	switch msg := context.Message.Message().(type) {
+	case AdderMessage:
+		if msg.add {
+			a.sum += msg.amount
+		} else {
+			a.sum -= msg.amount
+		}
+		fmt.Printf("Current sum is: %d\n", a.sum)
+	default:
+		fmt.Printf("Invalid message type")
+	}
 }
 
 type ComplexValue struct {
@@ -77,24 +76,23 @@ type ComplexValue struct {
 
 func main() {
 	system := actor.NewSystem()
-  context := system.Root
+	context := system.Root
 
-  adder := context.InitActor(&Adder{}, "Adder")
-  sender := context.InitActor(&Sender{
-    adderPid: *adder,
-  }, "Sender")
+	adder := context.InitActor(&Adder{}, "Adder")
+	sender := context.InitActor(&Sender{
+		adderPid: *adder,
+	}, "Sender")
 
-  //If they are not initialized by this point it will throw or wont work
-	time.Sleep(3 * time.Second)
+	//If they are not initialized by this point it will throw or wont work
 
-  context.Send(*sender, SenderMessage{amount: 6})
-  context.Send(*sender, SenderMessage{amount: 1})
-  context.Send(*sender, SenderMessage{amount: 8})
-  context.Send(*sender, SenderMessage{amount: 1})
-  context.Send(*sender, SenderMessage{amount: 4})
-  context.Send(*sender, SenderMessage{amount: 10})
-  context.Send(*sender, SenderMessage{amount: 89})
-  context.Send(*sender, SenderMessage{amount: 6})
+	context.Send(*sender, SenderMessage{amount: 6})
+	context.Send(*sender, SenderMessage{amount: 1})
+	context.Send(*sender, SenderMessage{amount: 8})
+	context.Send(*sender, SenderMessage{amount: 1})
+	context.Send(*sender, SenderMessage{amount: 4})
+	context.Send(*sender, SenderMessage{amount: 10})
+	context.Send(*sender, SenderMessage{amount: 89})
+	context.Send(*sender, SenderMessage{amount: 6})
 
 	system.PrintValues()
 	time.Sleep(60 * time.Second)

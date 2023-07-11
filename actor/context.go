@@ -1,16 +1,15 @@
 package actor
 
 import (
-
 	"github.com/google/uuid"
 )
 
 type ActorContext struct {
-  system *ActorSystem
+	system   *ActorSystem
 	behavior *behavior
 	Pid      uuid.UUID
 	Name     string
-  Message *Envelope
+	Message  *Envelope
 }
 
 func (context *ActorContext) Become(newBehavior func(context *ActorContext)) {
@@ -18,13 +17,11 @@ func (context *ActorContext) Become(newBehavior func(context *ActorContext)) {
 }
 
 func (context *ActorContext) Send(reciever uuid.UUID, message IMessage) {
-  envelope := Envelope{
-    reciver: reciever,
-    sender: &context.Pid,
-    message: message,
-  }
+	envelope := Envelope{
+		reciver: reciever,
+		sender:  context.Pid,
+		message: message,
+	}
 
-  context.system.ForwardMessage(envelope)
+	context.system.ForwardMessage(envelope)
 }
-
-
