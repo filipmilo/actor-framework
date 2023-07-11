@@ -74,6 +74,20 @@ func (a *Adder) Recieve(context *actor.ActorContext) {
 	}
 }
 
+type MyActor1 struct {
+	myActor2Pid uuid.UUID
+}
+
+func (t *MyActor1) Recieve(context *actor.ActorContext) {
+	switch msg := context.Message.Message().(type) {
+	case *messages.Ping:
+		fmt.Println("My actor1 received message: ", msg.Message)
+		context.Send(t.myActor2Pid, msg)
+	default:
+		log.Printf("Ivalid message type")
+	}
+}
+
 type ComplexValue struct {
 	Name    string
 	Surname string
@@ -83,14 +97,17 @@ type ComplexValue struct {
 func main() {
 	system := actor.NewSystem()
 	context := system.Root
-	remote1 := remote.NewRemote(system, remote.NewConfig("127.0.0.1:8000"))
-	remote1.Start()
+	remote := remote.NewRemote(system, remote.NewConfig("127.0.0.1:8000"))
+	remote.Start()
 	adder := context.InitActor(&Adder{}, "Adder")
 	sender := context.InitActor(&Sender{
 		adderPid: *adder,
 	}, "Sender")
-	myActorPid, _ := remote1.SpawnPid("MyActor", "127.0.0.1:4200")
-	context.SendRemote("127.0.0.1:4200", myActorPid, &messages.Ping{Message: "Hello from remote system"})
+	myActor2Pid, _ := remote.SpawnPid("MyActor2", "127.0.0.1:4200")
+	context.InitActor(&MyActor1{
+		myActor2Pid: *myActor2Pid,
+	}, "MyActor1")
+
 	//If they are not initialized by this point it will throw or wont work
 
 	context.Send(*sender, SenderMessage{amount: 6})

@@ -52,17 +52,16 @@ func (r *Remote) Start() {
 	go r.grpcServer.Serve(ln)
 }
 
-func (r *Remote) SpawnPid(name, address string) (uuid.UUID, error) {
+func (r *Remote) SpawnPid(name, address string) (*uuid.UUID, error) {
 	response, err := GetRemoteGrpcClient(address).GetRemotingActor(context.Background(), &proto.RemotingActorRequest{
 		Name: name,
 	})
-
 	if err != nil {
 		fmt.Print(strings.Split(err.Error(), "=")[2])
-		return uuid.Nil, err
+		return &uuid.Nil, err
 	}
 
-	return uuid.MustParse(response.Pid), nil
+	return r.system.Root.InitRemoteActor(uuid.MustParse(response.Pid), address), nil
 }
 
 func GetRemoteGrpcClient(address string) proto.RemoteClient {

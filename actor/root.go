@@ -64,6 +64,19 @@ func (as *RootActor) InitActor(prop IActor, name string) *uuid.UUID {
 	return &uuid
 }
 
+func (as *RootActor) InitRemoteActor(pid uuid.UUID, from string) *uuid.UUID {
+	prop := RemotingActorProp(from)
+	a := actor{
+		system:   as.system,
+		prop:     &prop,
+		behavior: initBehavior(prop.Recieve),
+		status:   ActorStarting,
+		name:     "remote",
+	}
+	uuid := a.birthRemote(pid)
+	return &uuid
+}
+
 func (as *RootActor) Send(reciever uuid.UUID, message IMessage) {
 	envelope := Envelope{
 		reciver: reciever,
@@ -72,16 +85,4 @@ func (as *RootActor) Send(reciever uuid.UUID, message IMessage) {
 	}
 
 	as.system.ForwardMessage(envelope)
-}
-
-func (as *RootActor) InitRemotingActor(prop IActor, name string, pid uuid.UUID) {
-	a := actor{
-		system:   as.system,
-		prop:     &prop,
-		behavior: initBehavior(prop.Recieve),
-		status:   ActorStarting,
-		name:     name,
-	}
-
-	a.birthRemote(pid)
 }

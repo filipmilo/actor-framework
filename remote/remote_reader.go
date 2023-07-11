@@ -27,7 +27,6 @@ func (r *RemoteReader) GetRemotingActor(ctx context.Context, request *proto.Remo
 			Pid: uuid.Nil.String(),
 		}, fmt.Errorf("Actor of name %s is not found \n", request.Name)
 	}
-
 	return &proto.RemotingActorResponse{
 		Pid: pid.String(),
 	}, nil
