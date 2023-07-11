@@ -99,16 +99,16 @@ func main() {
 	context := system.Root
 	remote := remote.NewRemote(system, remote.NewConfig("127.0.0.1:8000"))
 	remote.Start()
+
 	adder := context.InitActor(&Adder{}, "Adder")
 	sender := context.InitActor(&Sender{
 		adderPid: *adder,
 	}, "Sender")
+
 	myActor2Pid, _ := remote.SpawnPid("MyActor2", "127.0.0.1:4200")
 	context.InitActor(&MyActor1{
 		myActor2Pid: *myActor2Pid,
 	}, "MyActor1")
-
-	//If they are not initialized by this point it will throw or wont work
 
 	context.Send(*sender, SenderMessage{amount: 6})
 	context.Send(*sender, SenderMessage{amount: 1})
@@ -121,6 +121,5 @@ func main() {
 
 	system.PrintValues()
 	time.Sleep(60 * time.Second)
-	system.PrintValues()
 
 }

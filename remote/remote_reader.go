@@ -34,5 +34,5 @@ func (r *RemoteReader) GetRemotingActor(ctx context.Context, request *proto.Remo
 
 func (r *RemoteReader) SendMessage(ctx context.Context, request *proto.ProtoEnvelope) (*proto.MessageResponse, error) {
 	r.remote.system.Root.Send(uuid.MustParse(request.Target), proto.Decode(request))
-	return &proto.MessageResponse{Message: "Remote system received the message"}, nil
+	return &proto.MessageResponse{Message: "Remote system received the message \n"}, nil
 }
