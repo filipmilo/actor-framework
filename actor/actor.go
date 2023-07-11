@@ -14,13 +14,13 @@ type IActor interface {
 type ActorStatus int8
 
 const (
-  ActorStarting = iota
+	ActorStarting = iota
 	ActorLiving
-  ActorEnd
+	ActorEnd
 )
 
 type actor struct {
-  system *ActorSystem
+	system   *ActorSystem
 	pid      uuid.UUID
 	channel  chan Envelope
 	name     string
@@ -31,7 +31,7 @@ type actor struct {
 
 func (a *actor) birth() uuid.UUID {
 	a.pid = uuid.New()
-  go a.setup()
+	go a.setup()
 	return a.pid
 }
 
@@ -40,42 +40,60 @@ func (a *actor) setup() {
 
 	fmt.Printf("I, %s am BORN!\n", a.name)
 
-  a.onCreateSignal()
+	a.onCreateSignal()
 	a.live()
 }
 
 func (a *actor) onCreateSignal() {
-  a.system.Root.in <- Envelope{
-    reciver: a.system.Root.pid,
-    sender: &a.pid,
-    message: &CreateActorMessage{
-      pid: a.pid,
-      channel: a.channel,
-    },
-  }
+	a.system.Root.in <- Envelope{
+		reciver: a.system.Root.pid,
+		sender:  &a.pid,
+		message: &CreateActorMessage{
+			pid:     a.pid,
+			channel: a.channel,
+		},
+	}
+}
+
+func (a *actor) onDeleteSignal() {
+	a.system.Root.in <- Envelope{
+		reciver: a.system.Root.pid,
+		sender:  &a.pid,
+		message: &DeleteActorMessage{
+			pid:     a.pid,
+			channel: a.channel,
+		},
+	}
 }
 
 func (a *actor) createContext(msg *Envelope) *ActorContext {
-  return &ActorContext{
-    system: a.system,
-    behavior: a.behavior,
-    Pid:      a.pid,
-    Name:     a.name,
-    Message: msg,
-  }
+	return &ActorContext{
+		system:   a.system,
+		behavior: a.behavior,
+		Pid:      a.pid,
+		Name:     a.name,
+		Message:  msg,
+	}
 }
 
 func (a *actor) live() {
 	defer a.kill()
-  a.status = ActorLiving
+	a.status = ActorLiving
 
 	for a.status == ActorLiving {
-    msg := <-a.channel
-		a.behavior.run(a.createContext(&msg))
+		select {
+
+		case msg := <-a.channel:
+			a.behavior.run(a.createContext(&msg))
+
+		}
 	}
 
 }
 
 func (a *actor) kill() {
+
+	a.onDeleteSignal()
+
 	fmt.Printf("I,%s have died... ARGHHHH!\n", a.name)
 }

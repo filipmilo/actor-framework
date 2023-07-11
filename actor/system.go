@@ -15,7 +15,7 @@ type ActorSystem struct {
 
 func NewSystem() *ActorSystem {
   as := ActorSystem{}
-	as.environment = make(map[uuid.UUID]chan Envelope)
+  as.environment = make(map[uuid.UUID]chan Envelope)
   as.Root = newRootActor(&as)
 
   return &as
@@ -32,4 +32,19 @@ func (as *ActorSystem) ForwardMessage(message Envelope) {
 
 func (as *ActorSystem) PrintValues() {
   fmt.Printf("Environment: %v\n", as.environment)
+}
+
+func (as *ActorSystem) StopActor(actorPid uuid.UUID) {
+
+	// if !as.hasStarted {
+	// 	return errors.New("actor system has not started yet")
+	// }
+	_, exist := as.environment[actorPid]
+	if exist {
+
+		delete(as.environment, actorPid)
+		fmt.Printf("actor=%s is stopped\n", actorPid)
+		return
+	}
+	fmt.Printf("actor=%s not found in the system\n", actorPid)
 }

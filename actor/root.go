@@ -1,7 +1,6 @@
 package actor
 
 import (
-
 	"github.com/google/uuid"
 )
 
@@ -12,6 +11,11 @@ type RootActor struct {
 }
 
 type CreateActorMessage struct {
+  pid uuid.UUID
+  channel chan Envelope
+}
+
+type DeleteActorMessage struct {
   pid uuid.UUID
   channel chan Envelope
 }
@@ -33,6 +37,9 @@ func (as *RootActor) events() {
 		switch msg.message.(type) {
 		case *CreateActorMessage:
       as.system.RegiserActor((msg.message).(*CreateActorMessage))
+    case *DeleteActorMessage:
+      help := msg.message.(*DeleteActorMessage)
+      as.system.StopActor(help.pid)
 		default:
 		}
 	}
