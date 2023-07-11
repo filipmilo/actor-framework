@@ -1,0 +1,12 @@
+syntax = "proto3";
+package messages;
+option go_package = "actor-framework/messages";
+
+
+message Ping {
+    string message = 1;
+}
+
+message Response {
+    string message = 1;
+}

@@ -13,6 +13,7 @@ type RootActor struct {
 type CreateActorMessage struct {
 	pid     uuid.UUID
 	channel chan Envelope
+	name    string
 }
 
 type DeleteActorMessage struct {
@@ -60,6 +61,19 @@ func (as *RootActor) InitActor(prop IActor, name string) *uuid.UUID {
 	}
 
 	uuid := a.birth()
+	return &uuid
+}
+
+func (as *RootActor) InitRemoteActor(pid uuid.UUID, from string) *uuid.UUID {
+	prop := RemotingActorProp(from)
+	a := actor{
+		system:   as.system,
+		prop:     &prop,
+		behavior: initBehavior(prop.Recieve),
+		status:   ActorStarting,
+		name:     "remote",
+	}
+	uuid := a.birthRemote(pid)
 	return &uuid
 }
 

@@ -36,6 +36,13 @@ func (a *actor) birth() uuid.UUID {
 	return a.pid
 }
 
+func (a *actor) birthRemote(pid uuid.UUID) uuid.UUID {
+	a.pid = pid
+	a.setup()
+	go a.live()
+	return a.pid
+}
+
 func (a *actor) setup() {
 	a.channel = make(chan Envelope, 100)
 
@@ -53,6 +60,7 @@ func (a *actor) onCreateSignal() {
 		message: &CreateActorMessage{
 			pid:     a.pid,
 			channel: a.channel,
+			name:    a.name,
 		},
 	}
 }
