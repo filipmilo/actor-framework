@@ -31,7 +31,8 @@ type actor struct {
 
 func (a *actor) birth() uuid.UUID {
 	a.pid = uuid.New()
-	go a.setup()
+	a.setup()
+	go a.live()
 	return a.pid
 }
 
@@ -41,13 +42,14 @@ func (a *actor) setup() {
 	fmt.Printf("I, %s am BORN!\n", a.name)
 
 	a.onCreateSignal()
-	a.live()
+	msg := <-a.channel
+	fmt.Printf("I, %s am %s\n", a.name, msg.message)
 }
 
 func (a *actor) onCreateSignal() {
 	a.system.Root.in <- Envelope{
 		reciver: a.system.Root.pid,
-		sender:  &a.pid,
+		sender:  a.pid,
 		message: &CreateActorMessage{
 			pid:     a.pid,
 			channel: a.channel,
@@ -58,7 +60,7 @@ func (a *actor) onCreateSignal() {
 func (a *actor) onDeleteSignal() {
 	a.system.Root.in <- Envelope{
 		reciver: a.system.Root.pid,
-		sender:  &a.pid,
+		sender:  a.pid,
 		message: &DeleteActorMessage{
 			pid:     a.pid,
 			channel: a.channel,
