@@ -17,8 +17,21 @@ type Sender struct {
 func (s *Sender) Recieve(context *actor.ActorContext) {
 	switch msg := context.Message.Message().(type) {
 	case *messages.AdderMessage:
+		msg.IsAdd = true
+		context.Send(s.adderPid, msg)
+		context.Become(s.Subtract)
+	default:
+		log.Printf("Ivalid message type")
+	}
+}
+
+func (s *Sender) Subtract(context *actor.ActorContext) {
+	switch msg := context.Message.Message().(type) {
+	case *messages.AdderMessage:
+		msg.IsAdd = false
 		context.Send(s.adderPid, msg)
 
+		context.Become(s.Recieve)
 	default:
 		log.Printf("Ivalid message type")
 	}

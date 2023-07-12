@@ -7,5 +7,6 @@ message Sum {
 }
 
 message AdderMessage {
-	int32 amount = 1;
+    bool isAdd = 1;
+	int32 amount = 2;
 }

@@ -16,7 +16,11 @@ type Adder struct {
 func (a *Adder) Recieve(context *actor.ActorContext) {
 	switch msg := context.Message.Message().(type) {
 	case *messages.AdderMessage:
-		a.sum += msg.Amount
+		if msg.IsAdd {
+			a.sum += msg.Amount
+		} else {
+			a.sum -= msg.Amount
+		}
 		fmt.Printf("Current sum is: %d\n", a.sum)
 	default:
 		log.Printf("Ivalid message type")
