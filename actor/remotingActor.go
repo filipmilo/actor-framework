@@ -2,7 +2,6 @@ package actor
 
 import (
 	ctx "context"
-	"fmt"
 	"main/proto"
 )
 
@@ -23,7 +22,6 @@ func (a *remotingActor) Recieve(context *ActorContext) {
 	case interface{}:
 		envelope := proto.Encode(context.Message.message)
 		envelope.Target = context.Message.reciver.String()
-		response, _ := a.grpcClientConnection.SendMessage(ctx.Background(), envelope)
-		fmt.Printf(response.Message)
+		a.grpcClientConnection.SendMessage(ctx.Background(), envelope)
 	}
 }

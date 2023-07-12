@@ -20,16 +20,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Ping struct {
+type Sum struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Sum int32 `protobuf:"varint,1,opt,name=sum,proto3" json:"sum,omitempty"`
 }
 
-func (x *Ping) Reset() {
-	*x = Ping{}
+func (x *Sum) Reset() {
+	*x = Sum{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_messages_proto_messages_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -37,13 +37,13 @@ func (x *Ping) Reset() {
 	}
 }
 
-func (x *Ping) String() string {
+func (x *Sum) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Ping) ProtoMessage() {}
+func (*Sum) ProtoMessage() {}
 
-func (x *Ping) ProtoReflect() protoreflect.Message {
+func (x *Sum) ProtoReflect() protoreflect.Message {
 	mi := &file_messages_proto_messages_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -55,28 +55,28 @@ func (x *Ping) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Ping.ProtoReflect.Descriptor instead.
-func (*Ping) Descriptor() ([]byte, []int) {
+// Deprecated: Use Sum.ProtoReflect.Descriptor instead.
+func (*Sum) Descriptor() ([]byte, []int) {
 	return file_messages_proto_messages_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Ping) GetMessage() string {
+func (x *Sum) GetSum() int32 {
 	if x != nil {
-		return x.Message
+		return x.Sum
 	}
-	return ""
+	return 0
 }
 
-type Response struct {
+type AdderMessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Amount int32 `protobuf:"varint,1,opt,name=amount,proto3" json:"amount,omitempty"`
 }
 
-func (x *Response) Reset() {
-	*x = Response{}
+func (x *AdderMessage) Reset() {
+	*x = AdderMessage{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_messages_proto_messages_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -84,13 +84,13 @@ func (x *Response) Reset() {
 	}
 }
 
-func (x *Response) String() string {
+func (x *AdderMessage) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Response) ProtoMessage() {}
+func (*AdderMessage) ProtoMessage() {}
 
-func (x *Response) ProtoReflect() protoreflect.Message {
+func (x *AdderMessage) ProtoReflect() protoreflect.Message {
 	mi := &file_messages_proto_messages_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,16 +102,16 @@ func (x *Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Response.ProtoReflect.Descriptor instead.
-func (*Response) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdderMessage.ProtoReflect.Descriptor instead.
+func (*AdderMessage) Descriptor() ([]byte, []int) {
 	return file_messages_proto_messages_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Response) GetMessage() string {
+func (x *AdderMessage) GetAmount() int32 {
 	if x != nil {
-		return x.Message
+		return x.Amount
 	}
-	return ""
+	return 0
 }
 
 var File_messages_proto_messages_proto protoreflect.FileDescriptor
@@ -119,14 +119,13 @@ var File_messages_proto_messages_proto protoreflect.FileDescriptor
 var file_messages_proto_messages_proto_rawDesc = []byte{
 	0x0a, 0x1d, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x2f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12,
-	0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x22, 0x20, 0x0a, 0x04, 0x50, 0x69, 0x6e,
-	0x67, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x24, 0x0a, 0x08, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61,
-	0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x42, 0x1a, 0x5a, 0x18, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x2d, 0x66, 0x72, 0x61, 0x6d, 0x65,
-	0x77, 0x6f, 0x72, 0x6b, 0x2f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x22, 0x17, 0x0a, 0x03, 0x53, 0x75, 0x6d,
+	0x12, 0x10, 0x0a, 0x03, 0x73, 0x75, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x03, 0x73,
+	0x75, 0x6d, 0x22, 0x26, 0x0a, 0x0c, 0x41, 0x64, 0x64, 0x65, 0x72, 0x4d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x05, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0x1a, 0x5a, 0x18, 0x61, 0x63,
+	0x74, 0x6f, 0x72, 0x2d, 0x66, 0x72, 0x61, 0x6d, 0x65, 0x77, 0x6f, 0x72, 0x6b, 0x2f, 0x6d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -143,8 +142,8 @@ func file_messages_proto_messages_proto_rawDescGZIP() []byte {
 
 var file_messages_proto_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_messages_proto_messages_proto_goTypes = []interface{}{
-	(*Ping)(nil),     // 0: messages.Ping
-	(*Response)(nil), // 1: messages.Response
+	(*Sum)(nil),          // 0: messages.Sum
+	(*AdderMessage)(nil), // 1: messages.AdderMessage
 }
 var file_messages_proto_messages_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -161,7 +160,7 @@ func file_messages_proto_messages_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_messages_proto_messages_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Ping); i {
+			switch v := v.(*Sum); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -173,7 +172,7 @@ func file_messages_proto_messages_proto_init() {
 			}
 		}
 		file_messages_proto_messages_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Response); i {
+			switch v := v.(*AdderMessage); i {
 			case 0:
 				return &v.state
 			case 1:

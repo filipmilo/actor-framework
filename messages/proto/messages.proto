@@ -2,11 +2,10 @@ syntax = "proto3";
 package messages;
 option go_package = "actor-framework/messages";
 
-
-message Ping {
-    string message = 1;
+message Sum {
+    int32 sum = 1;
 }
 
-message Response {
-    string message = 1;
+message AdderMessage {
+	int32 amount = 1;
 }
